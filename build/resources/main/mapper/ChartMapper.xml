@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="stn_infotech.stn_chartback.repository.ChartRepository">
+    <select id="getDeviceFailureChart"  resultType="ChartData">
+        SELECT td.title as `name`, COUNT(*) AS `value`
+        FROM t_device td, t_errors te
+        WHERE td.deviceId = te.deviceId
+        <!-- title 조건 -->
+        <if test="title != null">
+            AND td.title LIKE CONCAT(#{title}, '%')
+        </if>
+        <!-- startDate와 endDate 조건 -->
+        <if test="startDate != null and endDate != null">
+            AND te.occurDate BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY name ORDER BY `value` DESC LIMIT 10;
+    </select>
+
+    <select id="getFailureChart"  resultType="ChartData">
+        SELECT te.`level` as `name`, COUNT(*) AS `value`
+        FROM t_device td, t_errors te
+        WHERE td.deviceId = te.deviceId
+        <!-- title 조건 -->
+        <if test="title != null">
+            AND td.title LIKE CONCAT(#{title}, '%')
+        </if>
+        <!-- startDate와 endDate 조건 -->
+        <if test="startDate != null and endDate != null">
+            AND te.occurDate BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY name ORDER BY `value` DESC LIMIT 10;
+    </select>
+
+    <select id="getTrafficChart"  resultType="ChartData">
+        SELECT
+        ti.interfaceName  as `name`
+        , max(tit.totBitData) as `value`
+        FROM
+        t_interface ti
+        , t_interface_traffic tit
+        , t_device td
+        WHERE
+        ti.interfaceId = tit.interfaceId
+        AND td.deviceId = ti.deviceId
+        <!-- title 조건 -->
+        <if test="title != null">
+            AND td.title LIKE CONCAT(#{title}, '%')
+        </if>
+        <!-- startDate와 endDate 조건 -->
+        <if test="startDate != null and endDate != null">
+            AND tit.trafficTime BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY `name`
+        ORDER BY `value` DESC
+        LIMIT 10;
+    </select>
+
+    <select id="getTrafficStatusChartData"  resultType="ChartData">
+        SELECT
+        DATE(tit.trafficTime)  as `name`
+        , SUM(tit.totBitData) as `value`
+        FROM
+        t_interface ti
+        , t_interface_traffic tit
+        , t_device td
+        WHERE
+        ti.interfaceId = tit.interfaceId
+        AND td.deviceId = ti.deviceId
+        <!-- title 조건 -->
+        <if test="title != null">
+            AND td.title LIKE CONCAT(#{title}, '%')
+        </if>
+        <!-- startDate와 endDate 조건 -->
+        <if test="startDate != null and endDate != null">
+            AND tit.trafficTime BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY `name`;
+    </select>
+
+    <select id="getChart"  resultType="ChartData">
+        SELECT
+        DATE(tit.trafficTime)  as `name`
+        , SUM(tit.totBitData) as `value`
+        FROM
+        t_interface ti
+        , t_interface_traffic tit
+        , t_device td
+        WHERE
+        ti.interfaceId = tit.interfaceId
+        AND td.deviceId = ti.deviceId
+        <!-- title 조건 -->
+        <if test="title != null">
+            AND td.title LIKE CONCAT(#{title}, '%')
+        </if>
+        <!-- startDate와 endDate 조건 -->
+        <if test="startDate != null and endDate != null">
+            AND tit.trafficTime BETWEEN #{startDate} AND #{endDate}
+        </if>
+        GROUP BY `name`;
+    </select>
+</mapper>
